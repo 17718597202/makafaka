@@ -6,18 +6,18 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const config = await getSiteConfig()
     return {
-      title: config.site_name || "Orion Key",
+      title: config.site_name || "MakaFaka",
       description: config.site_description || config.site_slogan || "",
       alternates: { canonical: "/" },
       openGraph: {
-        title: config.site_name || "Orion Key",
+        title: config.site_name || "MakaFaka",
         description: config.site_description || config.site_slogan || "",
         url: "/",
         ...(config.logo_url ? { images: [{ url: config.logo_url }] } : {}),
       },
     }
   } catch {
-    return { title: "Orion Key" }
+    return { title: "MakaFaka" }
   }
 }
 
@@ -31,7 +31,7 @@ export default async function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: config?.site_name || "Orion Key",
+    name: config?.site_name || "MakaFaka",
     description: config?.site_description || config?.site_slogan || "",
   }
 

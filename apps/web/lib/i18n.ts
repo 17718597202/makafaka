@@ -290,7 +290,7 @@ const zh = {
   "theme.system": "跟随系统",
 
   // Footer
-  "footer.powered": "由 Orion Key 提供服务",
+  "footer.powered": "由 MakaFaka 提供服务",
 
   // Not Found
   "notFound.title": "页面不存在",
@@ -916,7 +916,7 @@ const en: Record<keyof typeof zh, string> = {
   "theme.system": "System",
 
   // Footer
-  "footer.powered": "Powered by Orion Key",
+  "footer.powered": "Powered by MakaFaka",
 
   // Not Found
   "notFound.title": "Page Not Found",

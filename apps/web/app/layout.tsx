@@ -12,15 +12,15 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
   title: {
-    template: "%s | Orion Key",
-    default: "Orion Key - Auto Card Delivery",
+    template: "%s | MakaFaka",
+    default: "MakaFaka - 极速卡密发卡网",
   },
-  description: "Automated virtual goods card delivery platform",
+  description: "MakaFaka 虚拟商品卡密自动交付平台",
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
     locale: "zh_CN",
-    siteName: "Orion Key",
+    siteName: "MakaFaka",
   },
   twitter: {
     card: "summary_large_image",

@@ -35,6 +35,28 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    @org.springframework.beans.factory.annotation.Value("${blockchain.tron.nodes:https://api.trongrid.io,https://api.tronstack.io}")
+    private String tronNodesStr;
+
+    @org.springframework.beans.factory.annotation.Value("${blockchain.bsc.nodes:https://bsc-dataseed.bnbchain.org,https://bsc-dataseed1.defibit.io,https://rpc.ankr.com/bsc}")
+    private String bscNodesStr;
+
+    private List<String> getTronNodes() {
+        return parseNodes(tronNodesStr, List.of("https://api.trongrid.io"));
+    }
+
+    private List<String> getBscNodes() {
+        return parseNodes(bscNodesStr, List.of("https://bsc-dataseed.bnbchain.org"));
+    }
+
+    private List<String> parseNodes(String raw, List<String> defaultVal) {
+        if (raw == null || raw.isBlank()) return defaultVal;
+        return java.util.Arrays.stream(raw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     /**
      * TRC20 USDT 合约地址
      */
@@ -183,9 +205,41 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
 
     private ChainTransaction queryTransaction(String chain, String txid, boolean requireSolidified) {
         if (chain != null && chain.contains("trc20")) {
-            return queryTronTransaction(txid, requireSolidified);
+            List<String> nodes = getTronNodes();
+            Exception lastException = null;
+            for (String node : nodes) {
+                try {
+                    ChainTransaction tx = queryTronTransaction(node, txid, requireSolidified);
+                    if (tx != null) {
+                        return tx;
+                    }
+                } catch (Exception e) {
+                    log.warn("TRON node {} failed, trying next. Error: {}", node, e.getMessage());
+                    lastException = e;
+                }
+            }
+            if (lastException != null) {
+                throw new BusinessException(ErrorCode.TXID_VERIFY_FAILED, "所有 TRON 节点查询均失败: " + lastException.getMessage());
+            }
+            return null;
         } else if (chain != null && chain.contains("bep20")) {
-            return queryBscTransaction(txid);
+            List<String> nodes = getBscNodes();
+            Exception lastException = null;
+            for (String node : nodes) {
+                try {
+                    ChainTransaction tx = queryBscTransaction(node, txid);
+                    if (tx != null) {
+                        return tx;
+                    }
+                } catch (Exception e) {
+                    log.warn("BSC node {} failed, trying next. Error: {}", node, e.getMessage());
+                    lastException = e;
+                }
+            }
+            if (lastException != null) {
+                throw new BusinessException(ErrorCode.TXID_VERIFY_FAILED, "所有 BSC 节点查询均失败: " + lastException.getMessage());
+            }
+            return null;
         }
         throw new BusinessException(ErrorCode.TXID_VERIFY_FAILED, "不支持的链类型: " + chain);
     }
@@ -193,8 +247,8 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
     /**
      * 通过 TronGrid API 查询 TRC20 交易
      */
-    private ChainTransaction queryTronTransaction(String txid, boolean requireSolidified) {
-        String url = "https://api.trongrid.io/v1/transactions/" + txid + "/events";
+    private ChainTransaction queryTronTransaction(String baseUrl, String txid, boolean requireSolidified) {
+        String url = baseUrl + "/v1/transactions/" + txid + "/events";
         log.info("Querying TronGrid: {}", url);
 
         String responseBody = restTemplate.getForObject(url, String.class);
@@ -238,12 +292,12 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
 
                 // 手动 TXID 验证：通过 walletsolidity API 验证交易是否已 solidified（不可逆确认）
                 // Webhook 回调：跳过 solidification 检查（BEpusdt 自己扫链发现的交易，可信度高）
-                boolean confirmed = !requireSolidified || checkTronTransactionConfirmed(txid);
+                boolean confirmed = !requireSolidified || checkTronTransactionConfirmed(baseUrl, txid);
                 return new ChainTransaction(from, to, amount.toPlainString(), contractAddress, confirmed, blockTimestamp);
             }
             return null;
         } catch (Exception e) {
-            log.error("Failed to parse TronGrid response: {}", e.getMessage());
+            log.error("Failed to parse TronGrid response from {}: {}", baseUrl, e.getMessage());
             throw new RuntimeException("TronGrid API 解析失败", e);
         }
     }
@@ -252,9 +306,9 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
      * 通过 TronGrid walletsolidity API 验证交易是否已达到不可逆确认状态。
      * walletsolidity 端点仅返回已 solidified（19 个区块确认）的交易信息。
      */
-    private boolean checkTronTransactionConfirmed(String txid) {
+    private boolean checkTronTransactionConfirmed(String baseUrl, String txid) {
         try {
-            String url = "https://api.trongrid.io/walletsolidity/gettransactioninfobyid";
+            String url = baseUrl + "/walletsolidity/gettransactioninfobyid";
             Map<String, String> body = Map.of("value", txid);
             String response = restTemplate.postForObject(url, body, String.class);
             if (response == null || response.isBlank() || "{}".equals(response.trim())) {
@@ -271,7 +325,7 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
             String receiptResult = (String) receipt.get("result");
             return receiptResult == null || "SUCCESS".equals(receiptResult) || "DEFAULT".equals(receiptResult);
         } catch (Exception e) {
-            log.warn("Failed to verify TronGrid transaction confirmation: txid={}, error={}", txid, e.getMessage());
+            log.warn("Failed to verify TronGrid transaction confirmation via {}: txid={}, error={}", baseUrl, txid, e.getMessage());
             return false; // Fail-safe: 未确认则拒绝
         }
     }
@@ -282,9 +336,8 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
      * 从 logs 中解析 Transfer 事件提取 from/to/amount/contract。
      * 不依赖 BscScan REST API（已废弃 V1，V2 需付费）。
      */
-    private ChainTransaction queryBscTransaction(String txid) {
-        String rpcUrl = "https://bsc-dataseed.bnbchain.org/";
-        log.info("Querying BSC RPC receipt: txid={}", txid);
+    private ChainTransaction queryBscTransaction(String rpcUrl, String txid) {
+        log.info("Querying BSC RPC receipt: rpcUrl={}, txid={}", rpcUrl, txid);
 
         Map<String, Object> rpcRequest = Map.of(
                 "jsonrpc", "2.0",
@@ -341,7 +394,7 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
 
             return new ChainTransaction(null, null, "0", null, confirmed, blockTimestamp);
         } catch (Exception e) {
-            log.error("Failed to parse BSC RPC response: {}", e.getMessage());
+            log.error("Failed to parse BSC RPC response from {}: {}", rpcUrl, e.getMessage());
             throw new RuntimeException("BSC RPC 解析失败", e);
         }
     }
@@ -375,7 +428,7 @@ public class TxidVerifyServiceImpl implements TxidVerifyService {
             if (timestampHex == null) return null;
             return Long.parseLong(timestampHex.substring(2), 16);
         } catch (Exception e) {
-            log.warn("Failed to query BSC block timestamp: blockNumber={}, error={}", blockNumberHex, e.getMessage());
+            log.warn("Failed to query BSC block timestamp from {}: blockNumber={}, error={}", rpcUrl, blockNumberHex, e.getMessage());
             return null;
         }
     }

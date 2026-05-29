@@ -20,7 +20,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private String uploadPath;
 
     /** CORS 允许的来源列表，逗号分隔。默认允许 localhost 开发环境。 */
-    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:3001}")
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3010}")
     private String corsAllowedOrigins;
 
     @Bean
