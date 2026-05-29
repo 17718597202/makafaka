@@ -39,33 +39,36 @@ VALUES ('a0000000-0000-0000-0000-000000000003'::uuid, 'AI 人工智能服务', 3
 
 -- ================== 分类1: VPN 网络加速 ==================
 -- 商品1：MakaFaka VPN 极速季卡流量包 (150GB/月)
-INSERT INTO products (id, title, description, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
+INSERT INTO products (id, title, description, cover_url, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
 VALUES (
   'b0000000-0000-0000-0000-000000000001'::uuid,
   'MakaFaka VPN 极速季卡流量包 (150GB/月)',
   'MakaFaka 专线网络加速器。支持 Clash, Shadowrocket, V2ray 全客户端。提供 3 个月高速专线，支持 4K 极速无卡顿。支持多设备同时在线。',
+  '/api/uploads/vpn_cover.png',
   45.00,
   'a0000000-0000-0000-0000-000000000001'::uuid,
   5, false, true, 1, 0, NOW(), NOW()
 );
 
 -- 商品2：MakaFaka VPN 全球专线无限流量年卡
-INSERT INTO products (id, title, description, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
+INSERT INTO products (id, title, description, cover_url, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
 VALUES (
   'b0000000-0000-0000-0000-000000000002'::uuid,
   'MakaFaka VPN 全球专线无限流量年卡',
   '终极加速尊享年卡，无限流量，独立 IPLC 国际专线，超低延迟，全天稳定不掉线，海外办公、游戏狂飙首选。',
+  '/api/uploads/vpn_cover.png',
   148.00,
   'a0000000-0000-0000-0000-000000000001'::uuid,
   3, true, true, 2, 0, NOW(), NOW()
 );
 
 -- 商品3：Shadowrocket 独享小火箭苹果ID账号
-INSERT INTO products (id, title, description, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
+INSERT INTO products (id, title, description, cover_url, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
 VALUES (
   'b0000000-0000-0000-0000-000000000003'::uuid,
   'Shadowrocket 独享小火箭苹果 ID 账号',
   '美国 App Store 独享已购 Shadowrocket (小火箭) 苹果账号，可直接登录 App Store 下载小火箭。密保齐全，支持修改密码、绑定个人密保。',
+  '/api/uploads/vpn_cover.png',
   15.00,
   'a0000000-0000-0000-0000-000000000001'::uuid,
   5, false, true, 3, 0, NOW(), NOW()
@@ -73,22 +76,24 @@ VALUES (
 
 -- ================== 分类2: 社交网络账户 ==================
 -- 商品4：Facebook 2FA 双重身份验证耐用防封号
-INSERT INTO products (id, title, description, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
+INSERT INTO products (id, title, description, cover_url, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
 VALUES (
   'b0000000-0000-0000-0000-000000000004'::uuid,
   'Facebook 2FA 双重身份验证耐用防封号',
   '已激活 2FA 令牌的优质海外 Facebook 个人账号。通过 IP 纯净住宅环境养号，抗封性强，发帖、投放广告及引流首选。发货格式包含：账号、密码、2FA 私钥、备用验证码。',
+  '/api/uploads/facebook_cover.png',
   28.00,
   'a0000000-0000-0000-0000-000000000002'::uuid,
   5, true, true, 1, 0, NOW(), NOW()
 );
 
 -- 商品5：Facebook 企业广告账户 (BM250 权限)
-INSERT INTO products (id, title, description, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
+INSERT INTO products (id, title, description, cover_url, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
 VALUES (
   'b0000000-0000-0000-0000-000000000005'::uuid,
   'Facebook 企业广告账户 (BM250 权限)',
   'Facebook Business Manager 优质账户，每日限额 $250 美元，可创建多个子广告户，已经过双重认证，稳定性高，带邀请直升通道链接。',
+  '/api/uploads/facebook_cover.png',
   120.00,
   'a0000000-0000-0000-0000-000000000002'::uuid,
   3, false, true, 2, 0, NOW(), NOW()
@@ -96,33 +101,36 @@ VALUES (
 
 -- ================== 分类3: AI 人工智能服务 ==================
 -- 商品6：ChatGPT 3.5 独享独立成品账号 (已验邮箱)
-INSERT INTO products (id, title, description, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
+INSERT INTO products (id, title, description, cover_url, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
 VALUES (
   'b0000000-0000-0000-0000-000000000006'::uuid,
   'ChatGPT 3.5 独享独立成品账号 (已验邮箱)',
   'OpenAI 独立注册账号，包含独立注册邮箱、密码，可任意修改，纯手工注册，安全耐用，支持 API 绑定。',
+  '/api/uploads/chatgpt_cover.png',
   9.90,
   'a0000000-0000-0000-0000-000000000003'::uuid,
   5, false, true, 1, 0, NOW(), NOW()
 );
 
 -- 商品7：ChatGPT Plus (GPT-4) 官方正规订阅成品号
-INSERT INTO products (id, title, description, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
+INSERT INTO products (id, title, description, cover_url, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
 VALUES (
   'b0000000-0000-0000-0000-000000000007'::uuid,
   'ChatGPT Plus (GPT-4) 官方正规订阅成品号',
   '官方正规礼品卡订阅的 ChatGPT Plus 尊享账号。已解锁 GPT-4、GPTS 插件商店、DALL-E 3 作图等全部高级特权，独享一人一号。',
+  '/api/uploads/chatgpt_cover.png',
   175.00,
   'a0000000-0000-0000-0000-000000000003'::uuid,
   3, false, true, 2, 0, NOW(), NOW()
 );
 
 -- 商品8：OpenAI API Key 官方独享预充值点卡 ($120)
-INSERT INTO products (id, title, description, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
+INSERT INTO products (id, title, description, cover_url, base_price, category_id, low_stock_threshold, wholesale_enabled, is_enabled, sort_order, is_deleted, created_at, updated_at)
 VALUES (
   'b0000000-0000-0000-0000-000000000008'::uuid,
   'OpenAI API Key 官方独享预充值点卡 ($120)',
   '官方正版 API 接口秘钥，包含预充值 $120 美金余额，无限制并发额度，支持集成到个人聊天客户端或代码编辑器中。',
+  '/api/uploads/chatgpt_cover.png',
   85.00,
   'a0000000-0000-0000-0000-000000000003'::uuid,
   5, true, true, 3, 0, NOW(), NOW()
