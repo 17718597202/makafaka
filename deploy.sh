@@ -68,28 +68,13 @@ else
 fi
 
 # 6. 初始化 PostgreSQL 数据库
-echo -e "${YELLOW}6. 正在初始化 MakaFaka 数据库并导入种子数据...${NC}"
+echo -e "${YELLOW}6. 正在初始化 MakaFaka 数据库...${NC}"
 sudo -u postgres psql -c "SELECT 1 FROM pg_database WHERE datname = 'db'" | grep -q 1
 if [ $? -ne 0 ]; then
   sudo -u postgres psql -c "CREATE DATABASE db;"
   echo -e "${GREEN}已成功创建数据库: db${NC}"
 else
   echo -e "${YELLOW}数据库 db 已存在，跳过创建。${NC}"
-fi
-
-# 导入 schema 结构和数据
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-SCHEMA_SQL="${SCRIPT_DIR}/apps/api/src/main/resources/schema.sql"
-SEED_SQL="${SCRIPT_DIR}/apps/api/src/main/resources/seed_makafaka.sql"
-
-if [ -f "$SCHEMA_SQL" ]; then
-  echo -e "${YELLOW}导入数据库表结构 (schema.sql)...${NC}"
-  PGPASSWORD=postgres psql -h localhost -U postgres -d db -f "$SCHEMA_SQL"
-fi
-
-if [ -f "$SEED_SQL" ]; then
-  echo -e "${YELLOW}导入精美商品种子数据 (seed_makafaka.sql)...${NC}"
-  PGPASSWORD=postgres psql -h localhost -U postgres -d db -f "$SEED_SQL"
 fi
 
 # 7. 安装 Nginx
@@ -100,6 +85,7 @@ systemctl enable nginx
 
 # 8. 编译并打包 Java 后端 (API)
 echo -e "${YELLOW}8. 正在编译并打包后端 Spring Boot 应用程序...${NC}"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 cd "${SCRIPT_DIR}/apps/api"
 mvn clean package -DskipTests
 if [ $? -ne 0 ]; then
@@ -143,6 +129,18 @@ systemctl daemon-reload
 systemctl enable makafaka-api
 systemctl restart makafaka-api
 echo -e "${GREEN}后端服务已成功启动并设定开机自启！${NC}"
+
+# 等待 12 秒，让 Spring Boot 容器完全启动并由 Hibernate 自动建表
+echo -e "${YELLOW}正在等待 Spring Boot 服务启动并由 Hibernate 自动生成表结构...${NC}"
+sleep 12
+
+# 导入精美商品种子数据
+SEED_SQL="${SCRIPT_DIR}/apps/api/src/main/resources/seed_makafaka.sql"
+if [ -f "$SEED_SQL" ]; then
+  echo -e "${YELLOW}正在导入您刚才生成的 VPN、Facebook 和 ChatGPT 精美商品种子数据 (seed_makafaka.sql)...${NC}"
+  PGPASSWORD=postgres psql -h localhost -U postgres -d db -f "$SEED_SQL"
+  echo -e "${GREEN}商品种子数据导入成功！${NC}"
+fi
 
 # 10. 编译并启动 Node.js 前端 (Next.js)
 echo -e "${YELLOW}10. 正在编译并启动前端 Next.js 应用程序...${NC}"
