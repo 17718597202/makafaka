@@ -154,7 +154,7 @@ fi
 
 # 使用 PM2 运行前端应用
 pm2 delete makafaka-web 2>/dev/null
-pm2 start npm --name "makafaka-web" --run-concurrent-filesystem -- start -- -p 3010
+pm2 start npm --name "makafaka-web" -- start -- -p 3010
 pm2 save
 pm2 startup
 echo -e "${GREEN}前端服务已被 PM2 接管并在 Port 3010 启动成功！${NC}"
